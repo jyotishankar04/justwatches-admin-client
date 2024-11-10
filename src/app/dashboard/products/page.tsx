@@ -22,6 +22,7 @@ const Page = () => {
     queryFn: fetchProducts,
     staleTime: 1000 * 60 * 5,
     cacheTime: 1000 * 60 * 5,
+    enabled: true,
   });
 
   return (
@@ -42,7 +43,7 @@ const Page = () => {
           {isLoading ? (
             <Loader2 className="animate-spin" />
           ) : (
-            isSuccess && <ProductsTable products={data.data} />
+            isSuccess && <ProductsTable products={data.data || []} />
           )}
         </CardContent>
       </Card>

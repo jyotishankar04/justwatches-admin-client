@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import ProtectedRoute from "@/components/protected-route";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
 const layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
@@ -14,6 +15,7 @@ const layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 {children}
               </div>
             </div>
+            <ReactQueryDevtools initialIsOpen={false} />
           </ProtectedRoute>
         </SidebarInset>
       </SidebarProvider>

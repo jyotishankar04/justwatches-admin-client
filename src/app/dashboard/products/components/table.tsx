@@ -38,7 +38,7 @@ interface Product {
 
 const ProductsTable: React.FC<{
   products: Product[];
-}> = ({ products }) => {
+}> = ({ products = [] }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const queryClient = useQueryClient();
   const { mutate: deleteProduct, isLoading: isDeletingProduct } = useMutation({
@@ -62,6 +62,13 @@ const ProductsTable: React.FC<{
       });
     },
   });
+  if (products.length == 0) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <p className="text-gray-500">No products found</p>
+      </div>
+    );
+  }
   return (
     <Table>
       <TableCaption>List of products.</TableCaption>
@@ -79,16 +86,16 @@ const ProductsTable: React.FC<{
       </TableHeader>
       <TableBody>
         {products.map((product) => (
-          <TableRow key={product.name}>
-            <TableCell>{product.name}</TableCell>
-            <TableCell>{product.Collection.name}</TableCell>
+          <TableRow key={product.name || ""}>
+            <TableCell>{product.name || ""}</TableCell>
+            <TableCell>{product.Collection.name || ""}</TableCell>
 
-            <TableCell>{product.price}</TableCell>
+            <TableCell>{product.price || ""}</TableCell>
             <TableCell>
               <span className="text-green-600">Avilable</span>
             </TableCell>
             <TableCell>
-              {getFormattedDate(product.createdAt as string)}
+              {getFormattedDate(product.createdAt as string) || ""}
             </TableCell>
             <TableCell className="flex justify-center items-center w-full h-full">
               <div className="flex gap-2">

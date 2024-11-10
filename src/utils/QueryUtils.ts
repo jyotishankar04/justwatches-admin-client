@@ -111,6 +111,56 @@ const updateProductApi = async (id: string, data: IUpdateProduct) => {
   }
 };
 
+const deleteCollectionApi = async (id: string) => {
+  try {
+    const res = await axiosApi.delete(`/collections/${id}`);
+    if (!res.data.success) {
+      return res.data;
+    }
+    return res.data;
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to delete collection",
+    };
+  }
+};
+
+const updateCollectionApi = async (id: string, data: any) => {
+  try {
+    const res = await axiosApi.patch(`/collections/${id}`, data);
+    if (!res.data.success) {
+      return {
+        success: false,
+        message: res.data.message,
+      };
+    }
+    return res.data.data;
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to update collection",
+    };
+  }
+};
+const createCollection = async (data: any) => {
+  try {
+    const res = await axiosApi.post("/collections", data);
+    if (!res.data.success) {
+      return {
+        success: false,
+        message: res.data.message,
+      };
+    }
+    return res.data.data;
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to create collection",
+    };
+  }
+};
+
 export {
   fetchProducts,
   fetchSession,
@@ -119,4 +169,7 @@ export {
   createProduct,
   getProductById,
   updateProductApi,
+  deleteCollectionApi,
+  updateCollectionApi,
+  createCollection,
 };
