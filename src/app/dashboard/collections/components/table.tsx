@@ -26,6 +26,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
+import Image from "next/image";
 
 interface CollectionsTableProps {
   id: string;
@@ -120,6 +121,7 @@ const CollectionsTable: React.FC<{
       <TableCaption>List of Collections.</TableCaption>
       <TableHeader>
         <TableRow>
+          <TableHead>Image</TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Description</TableHead>
           <TableHead>Total Products</TableHead>
@@ -133,6 +135,15 @@ const CollectionsTable: React.FC<{
       <TableBody>
         {collections.map((collection) => (
           <TableRow key={collection.id}>
+            <TableCell>
+              <Image
+                src={collection.image}
+                alt={collection.name}
+                width={100}
+                height={100}
+                className="w-10 h-10 object-cover object-center rounded-full"
+              />
+            </TableCell>
             <TableCell>{collection.name}</TableCell>
             <TableCell className="line-clamp-1">
               {collection.description}

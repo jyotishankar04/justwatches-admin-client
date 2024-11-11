@@ -9,7 +9,7 @@ interface ImageFile extends File {
 }
 
 interface ImageUploadProps {
-  onImagesChange?: (files: File[]) => void;
+  onImagesChange?: (files: File[]) => void; // Changed to pass files directly
   maxImages?: number;
 }
 
@@ -36,7 +36,9 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
       const updatedImages = [...images, ...newImages];
       setImages(updatedImages);
-      onImagesChange?.(updatedImages);
+
+      // Call the onImagesChange function to send the files directly
+      onImagesChange?.(updatedImages); // Pass the array of files
     }
   };
 
@@ -49,10 +51,12 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const removeImage = (index: number) => {
     const updatedImages = images.filter((_, i) => i !== index);
     setImages(updatedImages);
-    onImagesChange?.(updatedImages);
     if (images[index].preview) {
       URL.revokeObjectURL(images[index].preview!);
     }
+
+    // Call the onImagesChange function to update the parent component with the updated file list
+    onImagesChange?.(updatedImages);
   };
 
   return (
@@ -97,7 +101,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           <Upload className="h-4 w-4 mx-auto" />
           <span className="text-xs">Upload</span>
         </div>
-        <Button>Upload</Button>
       </div>
 
       {images.length > 0 && (
@@ -108,11 +111,11 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
               className="group relative w-16 h-16 rounded overflow-hidden border border-gray-200"
             >
               <Image
-                src={image.preview as string}
-                alt={`Preview ${index + 1}`}
-                className="w-full h-full object-cover"
                 width={100}
                 height={100}
+                src={image.preview as string}
+                alt={`Preview ${index + 1}`}
+                className="w-full h-full object-contain"
               />
               <Button
                 variant="destructive"

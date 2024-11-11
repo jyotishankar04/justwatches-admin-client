@@ -1,4 +1,3 @@
-import { features } from "process";
 import z from "zod";
 
 const authValidator = z.object({
@@ -14,14 +13,7 @@ export const productAddValidator = z.object({
     .string()
     .min(3, { message: "Description must be at least 3 characters long" }),
   collectionId: z.string({ message: "Collection is required" }),
-  features: z
-    .array(z.string(), {
-      required_error: "Features are required",
-    })
-    .min(4, { message: "Features must be at least 4" })
-    .max(6, {
-      message: "Fatures must be at most 6",
-    }),
+
   case: z
     .string({ message: "Case is required" })
     .min(3, { message: "Case must be at least 3 characters long" }),

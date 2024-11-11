@@ -60,9 +60,13 @@ const fetchCollections = async () => {
     };
   }
 };
-const createProduct = async (data: ICreateProduct) => {
+const createProduct = async (data: FormData) => {
   try {
-    const res = await axiosApi.post("/products", data);
+    const res = await axiosApi.post("/products", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     if (!res.data.success) {
       return {
         success: false,
@@ -143,9 +147,13 @@ const updateCollectionApi = async (id: string, data: any) => {
     };
   }
 };
-const createCollection = async (data: any) => {
+const createCollection = async (data: FormData) => {
   try {
-    const res = await axiosApi.post("/collections", data);
+    const res = await axiosApi.post("/collections", data, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
     if (!res.data.success) {
       return {
         success: false,

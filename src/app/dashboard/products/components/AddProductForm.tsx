@@ -12,24 +12,28 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import FeatureList from "./FeatCard";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createProduct, fetchCollections } from "@/utils/QueryUtils";
 import { ICollection } from "@/utils/type";
-import ImageUpload from "./ImageDropZone";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { productAddValidator } from "@/utils/zodValidator";
 import toast from "react-hot-toast";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const AddProductForm = () => {
-  let features: string[] = [];
-
+  const [productImages, setProductImages] = useState<File[]>([]); // Updated to store FormData
+  const router = useRouter();
+  const [features, setFeatures] = useState<string[]>([]);
+  const queryClient = useQueryClient();
   const { mutate, isLoading: isCreateLoading } = useMutation({
     mutationFn: createProduct,
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast.success("Product created successfully");
-
       reset();
+      queryClient.invalidateQueries(["products"]);
+      router.push("/dashboard/products" + "/" + data.id);
     },
     onError: () => {
       toast.error("Failed to create product");
@@ -47,31 +51,45 @@ const AddProductForm = () => {
 
   const handleCreateProduct = handleSubmit((data) => {
     const validate = productAddValidator.safeParse(data);
-
     if (!validate.success) {
-      // Display the first validation error
       toast.error(
         validate.error.issues[0]?.message || "Validation error occurred"
       );
       return;
     }
-    mutate({
-      name: data.name,
-      collectionId: data.collectionId,
-      price: data.price,
-      description: data.description,
-      features: data.features,
-      case: data.case,
-      strap: data.strap,
-      warranty: data.warranty,
-      dialColor: data.dialColor,
-      waterResistance: data.waterResistance,
-      movement: data.movement,
-      crystal: data.crystal,
-      diameter: data.diameter,
-      length: data.length,
-      thickness: data.thickness,
+    if (features.length < 3) {
+      toast.error("Please add at least 3 feature");
+    }
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("collectionId", data.collectionId);
+    formData.append("price", data.price);
+    formData.append("description", data.description);
+
+    // Append multiple images
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+
+    productImages.forEach((image) => {
+      formData.append(`productImages`, image);
     });
+    // Append features
+    features.forEach((feature) => formData.append("features", feature));
+
+    // Append technical data fields
+    formData.append("case", data.case);
+    formData.append("strap", data.strap);
+    formData.append("warranty", data.warranty);
+    formData.append("dialColor", data.dialColor);
+    formData.append("waterResistance", data.waterResistance);
+    formData.append("movement", data.movement);
+    formData.append("crystal", data.crystal);
+    formData.append("diameter", data.diameter);
+    formData.append("length", data.length);
+    formData.append("thickness", data.thickness);
+    formData.append("logWidth", data.logWidth);
+    mutate(formData);
+    setProductImages([]);
+    setFeatures([]);
   });
 
   return (
@@ -107,7 +125,17 @@ const AddProductForm = () => {
       </div>
       <div className="w-full h-fit">
         <Label>Images</Label>
-        <ImageUpload />
+        {/* <ImageUpload onImagesChange={handleImagesChange} maxImages={5} /> */}
+        <Input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(e) => {
+            if (e.target.files) {
+              setProductImages(Array.from(e.target.files));
+            }
+          }}
+        />
       </div>
       <div className="w-full h-fit">
         <Label>Collection</Label>
@@ -235,8 +263,9 @@ const AddProductForm = () => {
       <div className="w-full h-fit col-span-2">
         <FeatureList
           onFeaturesChange={(e) => {
-            features = e.map((f) => f.name);
-            setValue("features", features);
+            const newFeatures = e.map((feature) => feature.name);
+
+            setFeatures(newFeatures);
           }}
           maxFeatures={6}
         />

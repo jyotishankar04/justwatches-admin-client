@@ -28,6 +28,7 @@ import { useState } from "react";
 
 const Page = () => {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [images, setImages] = useState<File | null>(null);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["collections"],
@@ -53,6 +54,7 @@ const Page = () => {
         queryClient.invalidateQueries(["collections"]);
         setAddDialogOpen(false);
         reset();
+        setImages(null); // Reset images state after submission
       },
       onError: () => {
         toast({
@@ -65,19 +67,21 @@ const Page = () => {
     });
 
   const handleCreateCollection = handleSubmit((data) => {
-    if (data.name.trim() === "" || data.description.trim() === "") {
+    if (data.name.trim() === "" || data.description.trim() === "" || !images) {
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Name and description are required",
+        description: "Name, description, and image are required",
         duration: 3000,
       });
       return;
     }
-    createCollectionMutate({
-      name: data.name,
-      description: data.description,
-    });
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("collectionImage", images);
+
+    createCollectionMutate(formData);
   });
 
   if (isLoading) {
@@ -97,6 +101,13 @@ const Page = () => {
       </div>
     );
   }
+
+  const processFiles = (files: FileList | null) => {
+    if (files && files[0]) {
+      const imageFile = files[0];
+      setImages(imageFile); // Save file to state
+    }
+  };
 
   return (
     <div>
@@ -126,12 +137,11 @@ const Page = () => {
                       <div className="flex flex-col gap-2">
                         <Label htmlFor="image">Image</Label>
                         <Input
-                          {...register("image")}
+                          onChange={(e) => processFiles(e.target.files)}
                           type="file"
                           placeholder="Collection image"
                           accept="image/*"
                         />
-                        <Button type="submit">Upload</Button>
                       </div>
                       <div>
                         <Label htmlFor="name">Name</Label>
