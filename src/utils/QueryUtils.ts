@@ -161,6 +161,21 @@ const createCollection = async (data: any) => {
   }
 };
 
+const getUserApi = async () => {
+  try {
+    const res = await axiosApi.get("/users");
+    if (!res.data.success) {
+      return res.data;
+    }
+    return res.data;
+  } catch (error) {
+    return {
+      success: false,
+      message: "Failed to fetch user",
+    };
+  }
+};
+
 export {
   fetchProducts,
   fetchSession,
@@ -172,4 +187,5 @@ export {
   deleteCollectionApi,
   updateCollectionApi,
   createCollection,
+  getUserApi,
 };
