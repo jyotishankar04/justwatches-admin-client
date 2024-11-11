@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Link from "next/link";
 import CollectionsTable from "./components/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createCollection, fetchCollections } from "@/utils/QueryUtils";

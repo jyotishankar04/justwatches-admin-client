@@ -17,15 +17,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DeleteIcon, Edit2, Eye, Loader2, Trash } from "lucide-react";
-import Link from "next/link";
+import { Edit2, Eye, Loader2, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  createCollection,
-  deleteCollectionApi,
-  updateCollectionApi,
-} from "@/utils/QueryUtils";
+import { deleteCollectionApi, updateCollectionApi } from "@/utils/QueryUtils";
 import { toast } from "@/hooks/use-toast";
 import React from "react";
 import { Label } from "@/components/ui/label";
@@ -43,11 +38,12 @@ interface CollectionsTableProps {
     products: number;
   };
 }
-
 const CollectionsTable: React.FC<{
   collections: CollectionsTableProps[];
 }> = ({ collections }) => {
-  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [collectionToDeleteId, setCollectionToDeleteId] = React.useState<
+    string | null
+  >(null);
   const [editDialogOpen, setEditDialogOpen] = React.useState(false);
   const { handleSubmit, register, reset, setValue } = useForm();
 
@@ -64,7 +60,7 @@ const CollectionsTable: React.FC<{
           duration: 3000,
         });
         queryClient.invalidateQueries(["collections"]);
-        setDeleteDialogOpen(false);
+        setCollectionToDeleteId(null); // Close the delete dialog
       },
       onError: () => {
         toast({
@@ -78,6 +74,7 @@ const CollectionsTable: React.FC<{
 
   const { mutate: updateCollection, isLoading: isUpdatingCollection } =
     useMutation({
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       mutationFn: ({ id, data }: { id: string; data: any }) =>
         updateCollectionApi(id, data),
       onSuccess: () => {
@@ -153,8 +150,14 @@ const CollectionsTable: React.FC<{
                   <Eye className="h-4 w-4 text-green-600 cursor-pointer" />
                 </div>
                 <Dialog
-                  open={deleteDialogOpen}
-                  onOpenChange={setDeleteDialogOpen}
+                  open={collectionToDeleteId === collection.id}
+                  onOpenChange={(open) => {
+                    if (open) {
+                      setCollectionToDeleteId(collection.id);
+                    } else {
+                      setCollectionToDeleteId(null);
+                    }
+                  }}
                 >
                   <DialogTrigger asChild>
                     <Trash className="h-4 w-4 text-rose-700 cursor-pointer" />
@@ -162,12 +165,13 @@ const CollectionsTable: React.FC<{
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader className="flex flex-col gap-5">
                       <DialogTitle className="font-normal ">
-                        Are you sure you want to delete this collection?
+                        Are you sure you want to delete this {collection.name}{" "}
+                        collection?
                       </DialogTitle>
                       <DialogDescription className="w-full flex flex-row gap-5">
                         <Button
                           variant={"secondary"}
-                          onClick={() => setDeleteDialogOpen(false)}
+                          onClick={() => setCollectionToDeleteId(null)}
                           disabled={isDeletingCollection}
                         >
                           Cancel
@@ -202,7 +206,7 @@ const CollectionsTable: React.FC<{
                   <DialogContent className="sm:max-w-[425px]">
                     <DialogHeader className="flex flex-col gap-5">
                       <DialogTitle className="font-normal">
-                        Edit Collection
+                        Edit Collection {collection.name}
                       </DialogTitle>
                     </DialogHeader>
                     <DialogDescription className="w-full">
